@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Servo Tony IA</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <style>
+    body {
+      font-family: "Georgia", serif;
+      background: linear-gradient(to bottom, #fffbe6, #fdf6e3);
+    }
+    .halo {
+      position: relative;
+    }
+    .halo::before {
+      content: "";
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 8px;
+      border-radius: 50%;
+      background: gold;
+      box-shadow: 0 0 10px gold;
+    }
+  </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen px-4">
+  <div class="text-center mb-4">
+    <div class="text-5xl font-bold text-yellow-700 halo">Servo Tony IA</div>
+    <p class="text-gray-700 mt-1 italic">Inspiração espiritual 24h com inteligência divina</p>
+  </div>
+
+  <div class="w-full max-w-2xl flex flex-col bg-white rounded-2xl shadow-xl p-4">
+    <div id="chat-box" class="flex-1 space-y-4 p-4 bg-yellow-50 rounded-xl overflow-y-auto" style="max-height:400px;">
+      <!-- Mensagens aparecerão aqui -->
+    </div>
+    <div class="mt-4 flex items-center gap-2">
+      <input
+        type="text"
+        id="question"
+        placeholder="Digite sua pergunta..."
+        class="flex-1 px-4 py-3 rounded-xl border border-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 text-gray-800"
+      />
+      <button id="send" class="bg-yellow-600 text-white px-6 py-3 rounded-xl hover:bg-yellow-700 transition-all">Enviar</button>
+    </div>
+  </div>
+
+  <div class="mt-6 text-sm text-gray-500 text-center">
+    Exemplos: “Que versículo pode me fortalecer hoje?” • “Como crescer na fé em tempos difíceis?” • “Como liderar com humildade?”
+  </div>
+
+  <audio id="sendSound" src="https://assets.mixkit.co/active_storage/sfx/2611/2611-preview.mp3" preload="auto"></audio>
+  <audio id="receiveSound" src="https://assets.mixkit.co/active_storage/sfx/2685/2685-preview.mp3" preload="auto"></audio>
+
+  <script>
+    const questionInput = document.getElementById("question");
+    const sendButton = document.getElementById("send");
+    const chatBox = document.getElementById("chat-box");
+    const sendSound = document.getElementById("sendSound");
+    const receiveSound = document.getElementById("receiveSound");
+
+    function appendMessage(text, type = "user") {
+      const div = document.createElement("div");
+      div.className = type === "user" ? "text-right" : "text-left";
+      div.innerHTML = `<div class="inline-block px-4 py-2 rounded-xl ${
+        type === "user" ? "bg-yellow-500 text-white" : "bg-gray-200 text-gray-800"
+      } max-w-[75%]">${text}</div>`;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    sendButton.addEventListener("click", async () => {
+      const question = questionInput.value.trim();
+      if (!question) return;
+      appendMessage(question, "user");
+      questionInput.value = "";
+      sendSound.play();
+      appendMessage("A pensar...", "bot");
+
+      try {
+        const res = await fetch("/ask", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question }),
+        });
+        const data = await res.json();
+        receiveSound.play();
+        chatBox.lastChild.remove(); // remove "A pensar..."
+        appendMessage(data.answer, "bot");
+      } catch (err) {
+        chatBox.lastChild.remove();
+        appendMessage("Erro ao obter resposta. Tente novamente.", "bot");
+      }
+    });
+
+    questionInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") sendButton.click();
+    });
+  </script>
+</body>
+</html>
