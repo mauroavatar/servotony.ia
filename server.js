@@ -1,21 +1,23 @@
-// server.js
-
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 require("dotenv").config();
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(bodyParser.json());
-
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-
-// Inicializar Gemini com a chave da API
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 app.use(express.static("public"));
+
+// Verifica se a chave está definida
+if (!process.env.GEMINI_API_KEY) {
+  throw new Error("A chave da API Gemini não está definida no .env");
+}
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
 app.post("/ask", async (req, res) => {
   const question = req.body.question;
 
@@ -24,17 +26,16 @@ app.post("/ask", async (req, res) => {
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-    const result = await model.generateContent([
-      {
-        role: "user",
-        parts: [{ text: `Responda como Servo Tony IA, um conselheiro cristão: ${question}` }],
-      },
-    ]);
+    // Chat session obrigatório para gemini-2.0-flash
+    const chat = model.startChat();
+    const result = await chat.sendMessage(
+      `Responda como Servo Tony IA, um conselheiro cristão: ${question}`
+    );
 
-    const response = result.response;
-    const text = response.text();
+    const text = await result.response.text();
+
     res.json({ answer: text });
   } catch (error) {
     console.error("Erro na API Gemini:", error);
