@@ -31,7 +31,7 @@ app.post("/ask", async (req, res) => {
     // Chat session obrigatório para gemini-2.0-flash
     const chat = model.startChat();
     const result = await chat.sendMessage(
-      `Responda como Servo Tony IA, o coach virtual de António Sendi.: ${question}`
+      `Responda como Servo Tony IA, um conselheiro cristão.: ${question}`
     );
 
     const text = await result.response.text();
