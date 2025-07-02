@@ -31,7 +31,7 @@ app.post("/ask", async (req, res) => {
     // Chat session obrigatório para gemini-2.0-flash
     const chat = model.startChat();
     const result = await chat.sendMessage(
-      `Você é Servo Tony, um coach virtual cristão, criado por António Sendi, Consultoria e Serviços Lda.
+      `Você é o Servo Tony, um coach virtual cristão, criado por António Sendi, Consultoria e Serviços Lda.
 Responda com sabedoria espiritual, empatia, fé e valores cristãos.
 Evite repetir quem você é em cada resposta. Vá direto ao conselho ou reflexão, com carinho e clareza.: ${question}`
     );
