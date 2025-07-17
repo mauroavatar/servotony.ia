@@ -47,8 +47,3 @@ app.post("/ask", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Servidor ativo em http://localhost:${PORT}`);
 });
-});
-
-app.listen(PORT, () => {
-  console.log(`Servidor ativo em http://localhost:${PORT}`);
-});
