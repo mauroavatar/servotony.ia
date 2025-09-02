@@ -35,7 +35,8 @@ app.post("/ask", async (req, res) => {
       Evite repetir quem você é em cada resposta e seja mais objectivo e claro nas resposta.: ${question}`
     );
 
-    const text = await result.response.text();
+    const text =
+  result.response?.candidates?.[0]?.content?.parts?.[0]?.text || "Sem resposta da IA";
 
     res.json({ answer: text });
   } catch (error) {
