@@ -28,15 +28,14 @@ app.post("/ask", async (req, res) => {
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-    // Chat session obrigatório para gemini-2.0-flash
-    const chat = model.startChat();
-    const result = await chat.sendMessage(
+    // Chamada direta sem chat
+    const result = await model.generateContent(
       `Você é o Servo Tony, criado por António Sendi, Consultoria e Serviços Lda.
-      Evite repetir quem você é em cada resposta e seja mais objectivo e claro nas resposta.: ${question}`
+      Evite repetir quem você é em cada resposta.: ${question}`
     );
 
-    const text =
-  result.response?.candidates?.[0]?.content?.parts?.[0]?.text || "Sem resposta da IA";
+    // Pega o texto corretamente
+    const text = result.response?.candidates?.[0]?.content?.parts?.[0]?.text || "Sem resposta da IA";
 
     res.json({ answer: text });
   } catch (error) {
